@@ -6,8 +6,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -102,27 +105,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //Location Services variables
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocatioRequest;
-    //TODO: LETS TRY THIS
-    private GeoQueryEventListener mGeoQueryEventListner;
-
-    TextView textView3;
-    TextView newFriendTextView, notificationTextView;
-    EditText editTextView1;
-    TextView geoQueryTextView;
 
     DatabaseReference mGeoFireChatroomReference;
     GeoFire mChatroomGeoFire;
     GeoQuery mGeoQuery;
+    FloatingActionButton mFloatingActionButton;
 
     /**
-     * My Map Variables
+     * My Map Variables - copied to MapFragment
      */
     GoogleMap m_map;
     boolean mapReady=false;
-    MarkerOptions home;
     MarkerOptions brickTown;
     /**
-     *Default Camera Position
+     *Default Camera Position - copied to MapFragment
      */
     static final CameraPosition WF = CameraPosition.builder()
             .target(new LatLng(33.9137,-98.4934))
@@ -137,24 +133,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         requestPermissions();
 
-        //TODO: fix the UI and textviews.
-        textView3 = (TextView) findViewById(R.id.textView3);
-        editTextView1 = (EditText) findViewById(R.id.editTextView);
-        geoQueryTextView = (TextView) findViewById(R.id.geoquery_text_view);
-        textView3.setText("Click here to go to latest added chatroom");
+        //Get the viewPager and set it's PagerAdapter so that it can display items
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        MyFragmentPagerAdapter pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+        viewPager.setAdapter(pagerAdapter);
 
-        /**
-         * Initializing my Markers to add to map
-         */
-        brickTown = new MarkerOptions()
-                .position(new LatLng(33.868589, -98.532809))
-                .title("BrickTown Brewery")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48));
+        //Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(viewPager);
+
+        mFloatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
         /**
          * Set up the MapFragment callback to OnMapReady()
          * */
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        //mapFragment.getMapAsync(this);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mUsernamesReference = mFirebaseDatabase.getReference().child("usernames");
@@ -219,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         }); */
 
+        /** //TODO: Save this intent for future use
         //TODO: Create intent to go to chatroom
         textView3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -233,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Toast.makeText(MainActivity.this, "No room available yet", Toast.LENGTH_LONG).show();
                 }
             }
-        });
+        }); */
     }
 
     private void dropPinOnMap(String roomName) {
@@ -323,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return true;
     }
     /**
-     * The call back for MapFrament to initialize the map
+     * The call back for MapFrament to initialize the map - copied to mapfragment
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -331,6 +325,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         m_map=googleMap;
         //m_map.addMarker(brickTown);
         m_map.moveCamera(CameraUpdateFactory.newCameraPosition(WF));
+
+        /**
+         * Initializing my Markers to add to map
+         */
+        brickTown = new MarkerOptions()
+                .position(new LatLng(33.868589, -98.532809))
+                .title("BrickTown Brewery")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin40));
     }
 
     @Override
@@ -490,8 +492,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 updateChatRoomList(key, location);
                 Log.v("MainActivity", String.format("Key %s entered the search area at [%f,%f]",
                         key, location.latitude, location.longitude));
-                geoQueryTextView.setText(String.format("Chatroom: %s created at gps coords [%f,%f]",
-                        key, location.latitude, location.longitude));
                 latestKey = key;
             }
             @Override
@@ -511,7 +511,4 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mChatRoomReference = mFirebaseDatabase.getReference()
                 .child("chat_rooms").child(chatRoomName).child("chat_messages");
     }
-
-    //TODO: MAKE FUNCTION TO JOIN CHATROOM IN NEW WINOW
-    private void joinChatRoom(String chatRoomId){}
 }
