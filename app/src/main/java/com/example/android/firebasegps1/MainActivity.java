@@ -105,11 +105,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //TODO: LETS TRY THIS
     private GeoQueryEventListener mGeoQueryEventListner;
 
-    TextView textView3, textView2;
+    TextView textView3;
     TextView newFriendTextView, notificationTextView;
     EditText editTextView1;
     TextView geoQueryTextView;
-    Button mNewChatButton;
 
     DatabaseReference mGeoFireChatroomReference;
     GeoFire mChatroomGeoFire;
@@ -139,11 +138,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         requestPermissions();
 
         //TODO: fix the UI and textviews.
-        textView2 = (TextView) findViewById(R.id.text_view_2);
         textView3 = (TextView) findViewById(R.id.textView3);
         editTextView1 = (EditText) findViewById(R.id.editTextView);
         geoQueryTextView = (TextView) findViewById(R.id.geoquery_text_view);
-        mNewChatButton = (Button) findViewById(R.id.create_chat_buton);
         textView3.setText("Click here to go to latest added chatroom");
 
         /**
@@ -207,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         };
-
+        /*
         //TODO: create a new chatroom in firebase Chat Directory
         mNewChatButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     dropPinOnMap(newRoomName);
                 }
             }
-        });
+        }); */
 
         //TODO: Create intent to go to chatroom
         textView3.setOnClickListener(new View.OnClickListener() {
@@ -449,7 +446,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         double newLong = newLocation.longitude;
         String chatroomUpdate = nameOfRoom+ " has Lat: " +newLat +
         " and Long: " + newLong;
-        textView2.setText(chatroomUpdate);
     }
 
     private void createChatRoomForReal(final String  name) {
