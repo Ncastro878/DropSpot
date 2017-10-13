@@ -33,7 +33,7 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
      */
     static final CameraPosition WF = CameraPosition.builder()
             .target(new LatLng(33.9137,-98.4934))
-            .zoom(10)
+            .zoom(30)
             .bearing(0)
             .tilt(45)
             .build();
@@ -63,10 +63,6 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mapReady=true;
-        m_map=googleMap;
-        //m_map.addMarker(brickTown);
-        m_map.moveCamera(CameraUpdateFactory.newCameraPosition(WF));
 
         /**
          * Initializing my Markers to add to map
@@ -75,5 +71,10 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
                 .position(new LatLng(33.868589, -98.532809))
                 .title("BrickTown Brewery")
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin40));
+        mapReady=true;
+        m_map=googleMap;
+        //m_map.addMarker(brickTown);
+        m_map.moveCamera(CameraUpdateFactory.newCameraPosition(WF));
+        m_map.addMarker(brickTown);
     }
 }

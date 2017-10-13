@@ -228,6 +228,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         }); */
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: CREATE DIALOG BOX HERE.
+                Toast.makeText(MainActivity.this, "ChatRoomCreated", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void dropPinOnMap(String roomName) {
