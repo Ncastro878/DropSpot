@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This is the layout for each Viwe that the Adapter.ViewHolder uses
+      to create individual views for the RecyclerView
+      Should just be a basic TextView with UserName -->
+
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/chat_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="This is dummy text, friend!"
+        android:textSize="24dp"
+        android:gravity="center"
+        android:textColor="#000000"/>
+    <TextView
+        android:id="@+id/real_username_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="username will go here"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="15dp"
+        android:textColor="#000000"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="_______________________"/>
+
+</LinearLayout>

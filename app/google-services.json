@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "430834056375",
+    "firebase_url": "https://fir-gps1.firebaseio.com",
+    "project_id": "fir-gps1",
+    "storage_bucket": "fir-gps1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:430834056375:android:afbf1f15e1f3df7d",
+        "android_client_info": {
+          "package_name": "com.example.android.firebasegps1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "430834056375-lspo0h74dbhg65p4msnbpob8haqn5tr8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.android.firebasegps1",
+            "certificate_hash": "c9fe83585b1d73627073d41cdf8c8f370df12500"
+          }
+        },
+        {
+          "client_id": "430834056375-h76p3t57ke97nic2lenh0a16q7poeshj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEan1OrenSbEsX2JcRwSmescIfIM_HDZo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "430834056375-h76p3t57ke97nic2lenh0a16q7poeshj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
