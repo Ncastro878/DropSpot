@@ -1,5 +1,8 @@
 package com.example.android.firebasegps1;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -14,6 +17,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -105,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     //Location Services variables
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocatioRequest;
+    EditText dialogEditText;
 
     DatabaseReference mGeoFireChatroomReference;
     GeoFire mChatroomGeoFire;
@@ -143,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         tabLayout.setupWithViewPager(viewPager);
 
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
+        //dialogEditText = (EditText) findViewById(R.id.chat_room_edit_text);
         /**
          * Set up the MapFragment callback to OnMapReady()
          * */
@@ -228,13 +234,50 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
             }
         }); */
+
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO: CREATE DIALOG BOX HERE.
-                Toast.makeText(MainActivity.this, "ChatRoomCreated", Toast.LENGTH_SHORT).show();
+                createRoomDialog();
             }
         });
+    }
+
+    private void createRoomDialog() {
+        //Make the dialogBuilder
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+        final View v = inflater.inflate(R.layout.dialog_layout, null);
+
+        //lets init the editText here 1st, then in the builder setup
+        //add characteristics
+        builder.setView(v)
+                .setMessage("Create ChatRoom")
+                .setTitle("Make a new room")
+                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //TODO: Do something with chat name string
+                        String chatName;
+                        dialogEditText = (EditText) v.findViewById(R.id.chat_room_edit_text);
+                        if(dialogEditText.getText().toString() != "") {
+                            chatName = dialogEditText.getText().toString();
+                            String toastMsg = chatName + " was created successfully.";
+                            Toast.makeText(MainActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(MainActivity.this, "enter a name", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //TODO:CANCEL
+                        Toast.makeText(MainActivity.this, "Creation Canceled", Toast.LENGTH_SHORT).show();
+                    }
+                });
+        builder.show();
     }
 
     private void dropPinOnMap(String roomName) {

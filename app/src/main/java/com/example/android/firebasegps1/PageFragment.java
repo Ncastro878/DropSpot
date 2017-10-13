@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 /**
- *
  * This will be the ChatRoom Fragment
  */
 

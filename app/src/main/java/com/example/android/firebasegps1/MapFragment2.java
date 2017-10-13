@@ -33,7 +33,7 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
      */
     static final CameraPosition WF = CameraPosition.builder()
             .target(new LatLng(33.9137,-98.4934))
-            .zoom(30)
+            .zoom(10)
             .bearing(0)
             .tilt(45)
             .build();

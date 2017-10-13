@@ -15,7 +15,7 @@ import com.google.android.gms.maps.MapFragment;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[]{"Map", "ChatRoom"};
+    private String tabTitles[] = new String[]{"Map", "ChatRooms"};
     private Context context;
 
     public MyFragmentPagerAdapter(FragmentManager fm, Context context){
