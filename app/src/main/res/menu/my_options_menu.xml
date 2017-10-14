@@ -7,7 +7,7 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/notifications_activity_menu_option"
-        android:title="Notifications"
+        android:title="Newest Chat"
         app:showAsAction="never"
         />
 

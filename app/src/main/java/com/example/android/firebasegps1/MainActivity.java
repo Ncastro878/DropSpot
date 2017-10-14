@@ -70,10 +70,11 @@ import static android.R.attr.key;
 import static android.R.id.button1;
 import static android.R.id.list;
 import static android.R.string.no;
+import static com.example.android.firebasegps1.MapFragment2.WF;
 import static com.firebase.ui.auth.AuthUI.*;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-        LocationListener, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback {
+        LocationListener, GoogleApiClient.OnConnectionFailedListener  {
 
     // TODO: test the signout function
     /**
@@ -98,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public static final int RC_SIGNIN = 1 ;
     private FirebaseDatabase mFirebaseDatabase;
 
-    private DatabaseReference mChatRoomReference;
     private DatabaseReference mPendingFriendRequestReference;
     private DatabaseReference mUsernamesReference;
 
@@ -116,22 +116,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     GeoQuery mGeoQuery;
     FloatingActionButton mFloatingActionButton;
 
-    /**
-     * My Map Variables - copied to MapFragment
-     */
-    GoogleMap m_map;
-    boolean mapReady=false;
-    MarkerOptions brickTown;
-    /**
-     *Default Camera Position - copied to MapFragment
-     */
-    static final CameraPosition WF = CameraPosition.builder()
-            .target(new LatLng(33.9137,-98.4934))
-            .zoom(10)
-            .bearing(0)
-            .tilt(45)
-            .build();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,12 +132,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         tabLayout.setupWithViewPager(viewPager);
 
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
-        //dialogEditText = (EditText) findViewById(R.id.chat_room_edit_text);
-        /**
-         * Set up the MapFragment callback to OnMapReady()
-         * */
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        //mapFragment.getMapAsync(this);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mUsernamesReference = mFirebaseDatabase.getReference().child("usernames");
@@ -261,10 +239,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                         //TODO: Do something with chat name string
                         String chatName;
                         dialogEditText = (EditText) v.findViewById(R.id.chat_room_edit_text);
-                        if(dialogEditText.getText().toString() != "") {
+                        if(dialogEditText.getText().toString() != "" ) {
                             chatName = dialogEditText.getText().toString();
                             String toastMsg = chatName + " was created successfully.";
                             Toast.makeText(MainActivity.this, toastMsg, Toast.LENGTH_SHORT).show();
+                            //initChatRoom(chatName);
+                            createChatRoomForReal(chatName);
+                            dropPinOnMap(chatName);
                         }else{
                             Toast.makeText(MainActivity.this, "enter a name", Toast.LENGTH_SHORT).show();
                         }
@@ -288,7 +269,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .position(new LatLng(latude, longtude))
                 .title(roomName)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48));
-        m_map.addMarker(newMarker);
+        //m_map.addMarker(newMarker);
+
+        MapFragment2 mMapFragment2 = (MapFragment2) getSupportFragmentManager().getFragments().get(0);
+        mMapFragment2.m_map.addMarker(newMarker);
     }
 
     @Override
@@ -366,24 +350,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         inflater.inflate(R.menu.my_options_menu, menu);
         return true;
     }
-    /**
-     * The call back for MapFrament to initialize the map - copied to mapfragment
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mapReady=true;
-        m_map=googleMap;
-        //m_map.addMarker(brickTown);
-        m_map.moveCamera(CameraUpdateFactory.newCameraPosition(WF));
-
-        /**
-         * Initializing my Markers to add to map
-         */
-        brickTown = new MarkerOptions()
-                .position(new LatLng(33.868589, -98.532809))
-                .title("BrickTown Brewery")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin40));
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -407,7 +373,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
-
         //TODO: List out local chatrooms in area.
     }
 
@@ -446,7 +411,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Location lastLocation = requestCurrentLocation();
         double myLat = (lastLocation.getLatitude());
         double myLong = (lastLocation.getLongitude());
-
         mGeoQuery = mChatroomGeoFire.queryAtLocation(new GeoLocation(myLat,myLong), 10);
         addEventListener();
     }
@@ -558,7 +522,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void initChatRoom(String chatRoomName){
-        mChatRoomReference = mFirebaseDatabase.getReference()
-                .child("chat_rooms").child(chatRoomName).child("chat_messages");
+        Log.v("MainActivity", "InitChatroom called with: " + chatRoomName);
+        mFirebaseDatabase.getReference()
+                .child("chat_rooms").child(chatRoomName)
+                .child("chat_messages").push().setValue("Welcome");
+
     }
 }

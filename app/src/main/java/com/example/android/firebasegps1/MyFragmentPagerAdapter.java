@@ -28,7 +28,7 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if(position == 1)
-            return PageFragment.newInstance(position);
+            return ChatListFragment.newInstance(position);
         return MapFragment2.newInstance();
     }
 
@@ -41,6 +41,4 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         return tabTitles[position];
     }
-
-
 }

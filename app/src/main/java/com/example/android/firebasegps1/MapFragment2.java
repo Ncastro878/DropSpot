@@ -1,5 +1,6 @@
 package com.example.android.firebasegps1;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -33,7 +34,7 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
      */
     static final CameraPosition WF = CameraPosition.builder()
             .target(new LatLng(33.9137,-98.4934))
-            .zoom(10)
+            .zoom(12)
             .bearing(0)
             .tilt(45)
             .build();
@@ -75,6 +76,6 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
         m_map=googleMap;
         //m_map.addMarker(brickTown);
         m_map.moveCamera(CameraUpdateFactory.newCameraPosition(WF));
-        m_map.addMarker(brickTown);
     }
+
 }
