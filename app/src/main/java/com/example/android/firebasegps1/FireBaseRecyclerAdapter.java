@@ -53,7 +53,8 @@ class FireBaseRecyclerAdapter extends RecyclerView.Adapter<FireBaseRecyclerAdapt
     @Override
     public void onBindViewHolder(FireBaseRecyclerAdapter.ViewHolder holder, int position) {
         holder.mTextView.setText(messagesList.get(position));
-        holder.mSmallTextView.setText("UserName: " + usernamesList.get(position));
+        holder.mSmallTextView.setText(usernamesList.get(position));
+        holder.mSmallTextView.append(": ");
         //TODO: set username to mSmallTextView
     }
 

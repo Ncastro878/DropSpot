@@ -11,5 +11,11 @@
         android:padding="5dp"
         android:gravity="center_horizontal"
         android:text="Test String" />
+    <View
+        android:background="#42a7f4"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_height="2dp" />
 
 </LinearLayout>
