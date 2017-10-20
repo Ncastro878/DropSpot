@@ -1,6 +1,7 @@
 package com.example.android.firebasegps1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,7 +48,6 @@ public class ChatListFragment extends Fragment {
      * */
     private FirebaseDatabase chatDataBase;
     private DatabaseReference chatListReference;
-    private ChildEventListener chatListChildEventListener;
 
     public static ChatListFragment newInstance(int page){
         Bundle args = new Bundle();
@@ -100,6 +101,7 @@ public class ChatListFragment extends Fragment {
                 if(v != null && mGestureDetector.onTouchEvent(e)){
                     int recyclerPosition = rv.getChildAdapterPosition(v);
                     Toast.makeText(getActivity(), "ChatRoom is : " + chatList.get(recyclerPosition), Toast.LENGTH_SHORT).show();
+                    goToChatRoom(chatList.get(recyclerPosition));
                 }
                 return false;
             }
@@ -109,6 +111,15 @@ public class ChatListFragment extends Fragment {
             public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
         });
         return view;
+    }
+
+    private void goToChatRoom(String chatRoomName) {
+        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        Intent intent = new Intent(getContext(), ChatRoomTemplate.class);
+        intent.putExtra("chatRoomName", chatRoomName);
+        intent.putExtra("user_name", userName);
+        startActivity(intent);
+
     }
 
     private void initializeChatRoomsList() {

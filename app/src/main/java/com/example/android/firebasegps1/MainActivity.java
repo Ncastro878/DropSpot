@@ -91,8 +91,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 28;
     static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-    public String mUsername;
-    String mDisplayName;
+    public String mDisplayName;
     private final String ANONYMOUS = "anonymous";
     private String latestKey = null;
 
@@ -160,8 +159,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     mDisplayName = user.getDisplayName();
                     mPendingFriendRequestReference =
                             mFirebaseDatabase.getReference().child("PendingFriendRequests");
-
-                    onSignedInInitialize(user.getDisplayName());
                     String userID = user.getUid();
 
                     // We add user to users list & usernames list
@@ -289,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void onSignedOutCleanup() {
-        mUsername = ANONYMOUS;
+        mDisplayName = ANONYMOUS;
         detachDatabaseReadListener();
     }
 
@@ -298,10 +295,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             mPendingFriendRequestReference.removeEventListener(mNewRequestEventListener);
             mNewRequestEventListener = null;
         }
-    }
-
-    private void onSignedInInitialize(String username) {
-        mUsername = username;
     }
 
     /**

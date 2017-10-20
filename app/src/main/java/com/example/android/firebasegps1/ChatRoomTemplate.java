@@ -94,20 +94,6 @@ public class ChatRoomTemplate extends AppCompatActivity {
         mFireBaseAdapter = new FireBaseRecyclerAdapter(receivedData, receivedUserNames);
         mRecyclerView.setAdapter(mFireBaseAdapter);
 
-        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newMessage = mNewMessageEditText.getText().toString();
-                if( newMessage != "" && newMessage != null){
-                    Map<String, String> map = new HashMap<String, String>() {};
-                    map.put(mUserName, newMessage);
-                    chatRoomReference.push().child(mUserName).setValue(newMessage);
-
-                    mNewMessageEditText.setText("");
-                    Toast.makeText(ChatRoomTemplate.this, "Message Sent", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
         /**
          * Let's initialize the chatroom references
          * so we can get the chat messages inside it.
@@ -138,6 +124,21 @@ public class ChatRoomTemplate extends AppCompatActivity {
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
             @Override
             public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String newMessage = mNewMessageEditText.getText().toString();
+                if( newMessage != "" && newMessage != null){
+                    Map<String, String> map = new HashMap<String, String>() {};
+                    map.put(mUserName, newMessage);
+                    chatRoomReference.push().child(mUserName).setValue(newMessage);
+
+                    mNewMessageEditText.setText("");
+                    Toast.makeText(ChatRoomTemplate.this, "Message Sent", Toast.LENGTH_LONG).show();
+                }
+            }
         });
     }
 }
