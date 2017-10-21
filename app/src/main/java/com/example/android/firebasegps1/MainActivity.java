@@ -72,6 +72,7 @@ import static android.R.id.list;
 import static android.R.string.no;
 import static com.example.android.firebasegps1.MapFragment2.WF;
 import static com.firebase.ui.auth.AuthUI.*;
+import static java.lang.System.currentTimeMillis;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         LocationListener, GoogleApiClient.OnConnectionFailedListener  {
@@ -516,9 +517,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private void initChatRoom(String chatRoomName){
         Log.v("MainActivity", "InitChatroom called with: " + chatRoomName);
+        //mFirebaseDatabase.getReference()
+          //      .child("chat_rooms").child(chatRoomName)
+            //    .child("chat_messages").push().setValue("Welcome");
+
+        //time in seconds since unix epoch, 1970
+        long currentTime = System.currentTimeMillis() / 1000;
+
         mFirebaseDatabase.getReference()
                 .child("chat_rooms").child(chatRoomName)
-                .child("chat_messages").push().setValue("Welcome");
+                .child("timeCreated").setValue(currentTime);
 
     }
 }
