@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -45,6 +46,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -54,6 +56,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.w3c.dom.Text;
 
@@ -97,14 +102,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private String latestKey = null;
 
     public static final int RC_SIGNIN = 1 ;
-    private FirebaseDatabase mFirebaseDatabase;
+    private static final int RC_PHOTO_PICKER = 4;
+
 
     private DatabaseReference mPendingFriendRequestReference;
     private DatabaseReference mUsernamesReference;
 
+    private FirebaseDatabase mFirebaseDatabase;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private ChildEventListener mNewRequestEventListener;
+    private FirebaseStorage mFirebaseStorage;
+    private StorageReference mChatPhotosStorageReference;
 
     //Location Services variables
     private GoogleApiClient mGoogleApiClient;
@@ -115,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     GeoFire mChatroomGeoFire;
     GeoQuery mGeoQuery;
     FloatingActionButton mFloatingActionButton;
+    Button mPhotoButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,8 +142,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         tabLayout.setupWithViewPager(viewPager);
 
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
+        mPhotoButton = (Button) findViewById(R.id.set_photo_url_button);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
+        mFirebaseStorage = FirebaseStorage.getInstance();
+        mChatPhotosStorageReference = mFirebaseStorage.getReference().child("chat_photos");
         mUsernamesReference = mFirebaseDatabase.getReference().child("usernames");
 
         //Location Services initialization
@@ -218,6 +231,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 createRoomDialog();
             }
         });
+        //Lets User set profile photo
+        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent,"Complete action using"), RC_PHOTO_PICKER);
+            }
+        });
     }
 
     private void createRoomDialog() {
@@ -283,6 +306,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 Toast.makeText(this, "Failure! :(", Toast.LENGTH_SHORT).show();
                 finish();
             }
+        }else if(requestCode == RC_PHOTO_PICKER && resultCode == RESULT_OK){
+            Uri selectedImageUri = data.getData();
+            StorageReference photoRef = mChatPhotosStorageReference.child(selectedImageUri.getLastPathSegment());
+            //i.e. content://local_images/foo/4, so the "4".
+            photoRef.putFile(selectedImageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    String downloadUrlString = downloadUrl.toString();
+                }
+            });
         }
     }
 

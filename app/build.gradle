@@ -30,17 +30,20 @@ dependencies {
     })
 
     //tab layout dependencies
-    compile "com.android.support:appcompat-v7:${supportLibVersion}"
-    compile "com.android.support:design:${supportLibVersion}"
-    //firebase dependency
+    compile "com.android.support:appcompat-v7:26.0.1"
+    compile 'com.android.support:design:26.0.1'
+
+     //firebase dependency
     //comment this out now,compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.firebase:firebase-database:11.0.1'
     compile 'com.google.firebase:firebase-auth:11.0.1'
     compile 'com.firebaseui:firebase-ui-auth:2.0.1'
-    compile 'com.google.android.gms:play-services:11.0.1'
+    compile 'com.google.android.gms:play-services:11.4.2'
     // The GeoFire Dependency
     compile 'com.firebase:geofire-android:2.1.1'
+
+    compile 'com.google.firebase:firebase-storage:11.4.2'
 
     testCompile 'junit:junit:4.12'
 }
