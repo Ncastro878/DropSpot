@@ -45,8 +45,9 @@ public class ChatRoomTemplate extends AppCompatActivity {
     private DatabaseReference chatRoomReference;
     private ChildEventListener chatRoomListner;
 
-    private ArrayList<String> receivedData;
+    private ArrayList<String> receivedMsgs;
     private ArrayList<String> receivedUserNames;
+    private ArrayList<String> receivedImageUrls;
     private String chatRoomName;
 
     private RecyclerView mRecyclerView;
@@ -67,8 +68,9 @@ public class ChatRoomTemplate extends AppCompatActivity {
          */
         mFirebaseAuth = FirebaseAuth.getInstance();
         user = mFirebaseAuth.getCurrentUser();
-        receivedData = new ArrayList<>();
+        receivedMsgs = new ArrayList<>();
         receivedUserNames = new ArrayList<>();
+        receivedImageUrls = new ArrayList<>();
 
         //received intent data
         Intent intentReceived = getIntent();
@@ -91,7 +93,7 @@ public class ChatRoomTemplate extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mFireBaseAdapter = new FireBaseRecyclerAdapter(receivedData, receivedUserNames);
+        mFireBaseAdapter = new FireBaseRecyclerAdapter(receivedMsgs, receivedUserNames, receivedImageUrls);
         mRecyclerView.setAdapter(mFireBaseAdapter);
 
         /**
@@ -104,16 +106,13 @@ public class ChatRoomTemplate extends AppCompatActivity {
         chatRoomReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                ChatMessageObject msgObj = dataSnapshot.getValue(ChatMessageObject.class);
+                receivedUserNames.add(msgObj.getUsername());
+                receivedMsgs.add(msgObj.getMessage());
+                receivedImageUrls.add(msgObj.getUserImageUrl());
+                Log.v("ChatRoomTemplate.java", msgObj.toString());
 
-                for(DataSnapshot newSnap: dataSnapshot.getChildren()) {
-                    String user = newSnap.getKey();
-                    String userMsg = newSnap.getValue().toString();
-                    if (user != null)
-                        receivedUserNames.add(user);
-                    if (userMsg != null)
-                        receivedData.add(userMsg);
-                }
-                mFireBaseAdapter.updateAdapter(receivedUserNames, receivedData);
+                mFireBaseAdapter.updateAdapter(receivedUserNames, receivedMsgs, receivedImageUrls);
                 mRecyclerView.smoothScrollToPosition(mFireBaseAdapter.getItemCount());
             }
             @Override
@@ -131,9 +130,16 @@ public class ChatRoomTemplate extends AppCompatActivity {
             public void onClick(View v) {
                 String newMessage = mNewMessageEditText.getText().toString();
                 if( newMessage != "" && newMessage != null){
-                    Map<String, String> map = new HashMap<String, String>() {};
-                    map.put(mUserName, newMessage);
-                    chatRoomReference.push().child(mUserName).setValue(newMessage);
+                    //Map<String, String> map = new HashMap<String, String>() {};
+                    //map.put(mUserName, newMessage);
+                    //chatRoomReference.push().child(mUserName).setValue(newMessage);
+                    ChatMessageObject msgObject = new ChatMessageObject();
+                    msgObject.setMessage(newMessage);
+                    msgObject.setUsername(mUserName);
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    if(user.getPhotoUrl() != null)
+                        msgObject.setUserImageUrl(user.getPhotoUrl().toString());
+                    chatRoomReference.push().setValue(msgObject);
 
                     mNewMessageEditText.setText("");
                     Toast.makeText(ChatRoomTemplate.this, "Message Sent", Toast.LENGTH_LONG).show();

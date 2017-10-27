@@ -60,7 +60,7 @@ public class ChatListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPage = getArguments().getInt(ARG_PAGE);
-        chatList.add("FakeRoom");
+        //chatList.add("FakeRoom");
 
         chatDataBase = FirebaseDatabase.getInstance();
         chatListReference = chatDataBase.getReference().child("chat_rooms");

@@ -46,9 +46,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -100,10 +103,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public String mDisplayName;
     private final String ANONYMOUS = "anonymous";
     private String latestKey = null;
+    private String userImgDownloadUrl = null;
 
     public static final int RC_SIGNIN = 1 ;
     private static final int RC_PHOTO_PICKER = 4;
-
 
     private DatabaseReference mPendingFriendRequestReference;
     private DatabaseReference mUsernamesReference;
@@ -314,10 +317,29 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                    //possibly unused;
                     String downloadUrlString = downloadUrl.toString();
+                    updateUserImage(downloadUrl);
                 }
             });
         }
+    }
+
+    private void updateUserImage(Uri downloadUrlString) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setPhotoUri(downloadUrlString)
+                .build();
+        user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    Log.v("MainActivity.java", "PictureUrl upload was successful");
+                    Log.v("MainActivity.java", "Url is: " + task.getResult().toString());
+                }
+            }
+
+        });
     }
 
     private void onSignedOutCleanup() {
