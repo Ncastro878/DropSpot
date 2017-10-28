@@ -78,6 +78,7 @@ import static android.R.attr.key;
 import static android.R.id.button1;
 import static android.R.id.list;
 import static android.R.string.no;
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static com.example.android.firebasegps1.MapFragment2.WF;
 import static com.firebase.ui.auth.AuthUI.*;
 import static java.lang.System.currentTimeMillis;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocatioRequest;
     EditText dialogEditText;
+    static Location lastLocation;
 
     DatabaseReference mGeoFireChatroomReference;
     GeoFire mChatroomGeoFire;
@@ -439,6 +441,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         //TODO: Gonna try to geoquery updated locations, makesure setCenter() works vs setLocation()
         double myLong = location.getLongitude();
         double myLat = location.getLatitude();
+        lastLocation = location;
         mGeoQuery.setCenter(new GeoLocation(myLong, myLat));
     }
 
@@ -449,7 +452,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnected(@Nullable Bundle bundle) {
         mLocatioRequest = LocationRequest.create();
         mLocatioRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocatioRequest.setInterval(5000);
+        mLocatioRequest.setInterval(10000);
         /*try {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocatioRequest, this);
@@ -457,8 +460,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.e(LOG_TAG, "error.error: " + e);
         }*/
 
-        //Getting last location info
-        Location lastLocation = requestCurrentLocation();
+        //Getting last location info - lets try & make this a global var
+        lastLocation = requestCurrentLocation();
         double myLat = (lastLocation.getLatitude());
         double myLong = (lastLocation.getLongitude());
         mGeoQuery = mChatroomGeoFire.queryAtLocation(new GeoLocation(myLat,myLong), 10);
@@ -506,7 +509,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onProviderDisabled(String provider) {}
 
-
     private void updateChatRoomList(String nameOfRoom, GeoLocation newLocation) {
         double newLat = newLocation.latitude;
         double newLong = newLocation.longitude;
@@ -533,7 +535,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Toast.makeText(this, "Chatroom " + name + " created. Success!", Toast.LENGTH_LONG).show();
     }
 
-    private Location requestCurrentLocation(){
+    public Location requestCurrentLocation(){
         //The required permission request to get lastLocation
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -573,9 +575,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private void initChatRoom(String chatRoomName){
         Log.v("MainActivity", "InitChatroom called with: " + chatRoomName);
-        //mFirebaseDatabase.getReference()
-          //      .child("chat_rooms").child(chatRoomName)
-            //    .child("chat_messages").push().setValue("Welcome");
 
         //time in seconds since unix epoch, 1970
         long currentTime = System.currentTimeMillis() / 1000;
