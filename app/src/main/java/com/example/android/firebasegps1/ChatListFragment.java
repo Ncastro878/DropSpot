@@ -84,6 +84,8 @@ public class ChatListFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         };
+
+        // may be unnecessary
         myNewListener = new RecyclerView.OnItemTouchListener() {
             GestureDetector mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener(){
                 @Override
@@ -133,10 +135,11 @@ public class ChatListFragment extends Fragment {
         initializeChatRoomsList();
 
         /**
+         * Lets try a different approach for now.
          * Adding onClickListner to RecyclerView. Used this tutorial:
          * https://www.android-examples.com/add-onitemclicklistener-to-recyclerview-in-android/
          */
-        chatListRecyclerView.addOnItemTouchListener(myNewListener);
+        //chatListRecyclerView.addOnItemTouchListener(myNewListener);
         return view;
     }
 
@@ -146,7 +149,6 @@ public class ChatListFragment extends Fragment {
         intent.putExtra("chatRoomName", chatRoomName);
         intent.putExtra("user_name", userName);
         startActivity(intent);
-
     }
 
     private void initializeChatRoomsList() {

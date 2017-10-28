@@ -13,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -116,7 +117,8 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
                         MarkerOptions newMarker = new MarkerOptions()
                                 .position(new LatLng(longitude, latitude))
                                 .title(roomName)
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48));
+                                .icon(getCorrectPin(latitude, longitude));
+                                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48));
                         m_map.addMarker(newMarker);
                     }
                 }
@@ -124,6 +126,22 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+    }
+
+    private BitmapDescriptor getCorrectPin(double longitude, double latitude) {
+        Location newLocation = new Location("");
+        newLocation.setLongitude(longitude);
+        newLocation.setLatitude(latitude);
+        if(newLocation.distanceTo(MainActivity.lastLocation) > 1609){
+            String ugh = String.format("newLocation lat:%s, long:%s", latitude, longitude);
+            String eck = String.format("currentLocation lat:%s, long:%s", MainActivity.lastLocation.getLatitude(),
+                    MainActivity.lastLocation.getLongitude());
+
+            Log.v("MapFragment2.java", eck);
+            Log.v("MapFragment2.java", ugh);
+            return BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48);
+        }
+        return BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin40);
     }
 
 }
