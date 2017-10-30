@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -39,8 +40,13 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -50,6 +56,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -84,10 +91,10 @@ import static android.R.string.no;
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static com.example.android.firebasegps1.MapFragment2.WF;
 import static com.firebase.ui.auth.AuthUI.*;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 import static java.lang.System.currentTimeMillis;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
-        LocationListener, GoogleApiClient.OnConnectionFailedListener  {
+public class MainActivity extends AppCompatActivity {
 
     // TODO: test the signout function
     /**
@@ -109,10 +116,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private String latestKey = null;
     private String userImgDownloadUrl = null;
 
-    public static final int RC_SIGNIN = 1 ;
+    public static final int RC_SIGNIN = 1;
     private static final int RC_PHOTO_PICKER = 4;
 
-    private DatabaseReference mPendingFriendRequestReference;
     private DatabaseReference mUsernamesReference;
 
     private FirebaseDatabase mFirebaseDatabase;
@@ -136,17 +142,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     /**
      * Lets test this intercace callback out
      */
-    public interface UpdateUI{
+    public interface UpdateUI {
         void updateMe();
     }
 
     /**
      * Potentially outdated variables
      * Location Services variables
-
+     *
+     * use the same LocationRequest variable
      */
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocatioRequest;
+    private LocationRequest mLocationRequest;
     EditText dialogEditText;
     static Location lastLocation;
 
@@ -155,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         requestPermissions();
+        startLocationUpdates();
 
         //Get the viewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -173,45 +180,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mChatPhotosStorageReference = mFirebaseStorage.getReference().child("chat_photos");
         mUsernamesReference = mFirebaseDatabase.getReference().child("usernames");
 
-        //Location Services initialization
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
         //GeoFire Variables
         mGeoFireChatroomReference = FirebaseDatabase.getInstance().getReference("chat_rooms");
         mChatroomGeoFire = new GeoFire(mGeoFireChatroomReference);
 
         //TODO: Use recurring queries to query current location. erase me
-        mGeoQuery = mChatroomGeoFire.queryAtLocation(new GeoLocation(33.9137,98.4934), 10);
+        mGeoQuery = mChatroomGeoFire.queryAtLocation(new GeoLocation(33.9137, 98.4934), 10);
 
         mFirebaseAuth = FirebaseAuth.getInstance();
-        mAuthStateListener = new FirebaseAuth.AuthStateListener(){
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null){
+                if (user != null) {
                     //Lets connect the PendingFR-Reference
                     mDisplayName = user.getDisplayName();
-                    mPendingFriendRequestReference =
-                            mFirebaseDatabase.getReference().child("PendingFriendRequests");
                     String userID = user.getUid();
 
                     // We add user to users list & usernames list
                     mUsernamesReference.child(user.getDisplayName()).setValue(user.getUid());
 
-                }else{
+                } else {
                     onSignedOutCleanup();
                     startActivityForResult(
                             AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setIsSmartLockEnabled(false)
-                            .setAvailableProviders(Arrays.asList(
-                                    new IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                    new IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                            .build(),
+                                    .createSignInIntentBuilder()
+                                    .setIsSmartLockEnabled(false)
+                                    .setAvailableProviders(Arrays.asList(
+                                            new IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
+                                            new IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                    .build(),
                             RC_SIGNIN);
                 }
             }
@@ -232,20 +230,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }); */
 
         /** //TODO: Save this intent for future use
-        //TODO: Create intent to go to chatroom
-        textView3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ChatRoomTemplate.class);
-                if(latestKey != null){
-                    Log.d("MainActivity", latestKey + " is the latestKey, man");
-                    intent.putExtra("chatRoomName", latestKey);
-                    intent.putExtra("user_name", mUsername);
-                    startActivity(intent);
-                }else if(latestKey == null){
-                    Toast.makeText(MainActivity.this, "No room available yet", Toast.LENGTH_LONG).show();
-                }
-            }
+         //TODO: Create intent to go to chatroom
+         textView3.setOnClickListener(new View.OnClickListener() {
+        @Override public void onClick(View v) {
+        Intent intent = new Intent(MainActivity.this, ChatRoomTemplate.class);
+        if(latestKey != null){
+        Log.d("MainActivity", latestKey + " is the latestKey, man");
+        intent.putExtra("chatRoomName", latestKey);
+        intent.putExtra("user_name", mUsername);
+        startActivity(intent);
+        }else if(latestKey == null){
+        Toast.makeText(MainActivity.this, "No room available yet", Toast.LENGTH_LONG).show();
+        }
+        }
         }); */
 
         mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -262,6 +259,74 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 mLocation.setLatitude(40.7128);
                 mLocation.setLongitude(74.0060);
                 onLocationChanged(mLocation);
+            }
+        });
+    }
+
+    private void startLocationUpdates() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(15000);
+        mLocationRequest.setFastestInterval(1000);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        LocationSettingsRequest locationSettingsRequest = builder.build();
+
+        SettingsClient settingsClient = LocationServices.getSettingsClient(this);
+        settingsClient.checkLocationSettings(locationSettingsRequest);
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        getFusedLocationProviderClient(this).requestLocationUpdates(mLocationRequest, new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                onLocationChanged(locationResult.getLastLocation());
+            }
+        }, Looper.myLooper());
+
+    }
+
+    private void onLocationChanged(Location newLastLocation) {
+        //TODO: update setGeoQuery here
+        //mGeoQuery.setCenter(new GeoLocation(myLong, myLat));
+        lastLocation = newLastLocation;
+        pagerAdapter.updateMe();
+    }
+
+    //called getLastLocation() in tutorial.
+    public void requestCurrentLocation() {
+        FusedLocationProviderClient fusedLocationProviderClient = getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            //return;
+        }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if(location != null){
+                    onLocationChanged(location);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("MainActivity.java", "Error occured: " + e);
+                e.printStackTrace();
             }
         });
     }
@@ -306,7 +371,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void dropPinOnMap(String roomName) {
-        Location currentLocation = requestCurrentLocation();
+        requestCurrentLocation();
+        Location currentLocation = lastLocation;
         double longtude = currentLocation.getLongitude();
         double latude = currentLocation.getLatitude();
         MarkerOptions newMarker = new MarkerOptions()
@@ -369,7 +435,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     private void detachDatabaseReadListener() {
         if(mNewRequestEventListener != null){
-            mPendingFriendRequestReference.removeEventListener(mNewRequestEventListener);
             mNewRequestEventListener = null;
         }
     }
@@ -418,60 +483,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onStart() {
         super.onStart();
-        mGoogleApiClient.connect();
-        //TODO: List out local chatrooms in area.
     }
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
         super.onStop();
         mGeoQuery.removeAllListeners();
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.i(LOG_TAG, "Location changed to :" + location.toString() );
-        //TODO: Gonna try to geoquery updated locations, makesure setCenter() works vs setLocation()
-        double myLong = location.getLongitude();
-        double myLat = location.getLatitude();
-        lastLocation = location;
-        mGeoQuery.setCenter(new GeoLocation(myLong, myLat));
-
-        //TODO: get proper reference to the fragments.
-        pagerAdapter.updateMe();
-        Log.v("MainActivity.java", "OnLocationChanged, Lat:" + location.getLatitude());
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        mLocatioRequest = LocationRequest.create();
-        mLocatioRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocatioRequest.setInterval(3000);
-        /*try {
-            LocationServices.FusedLocationApi.requestLocationUpdates(
-                    mGoogleApiClient, mLocatioRequest, this);
-        }catch(SecurityException e){
-            Log.e(LOG_TAG, "error.error: " + e);
-        }*/
-
-        //Getting last location info - lets try & make this a global var
-        lastLocation = requestCurrentLocation();
-        double myLat = (lastLocation.getLatitude());
-        double myLong = (lastLocation.getLongitude());
-        mGeoQuery = mChatroomGeoFire.queryAtLocation(new GeoLocation(myLat,myLong), 10);
-        addEventListener();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {Log.i(LOG_TAG, " hi friend");}
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(LOG_TAG, " hi friend, connection failed");    }
 
     public void requestPermissions(){
         // Here, thisActivity is the current activity
@@ -501,11 +520,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
-    @Override
-    public void onProviderEnabled(String provider) {}
-
-    @Override
-    public void onProviderDisabled(String provider) {}
 
     private void updateChatRoomList(String nameOfRoom, GeoLocation newLocation) {
         double newLat = newLocation.latitude;
@@ -515,7 +529,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     private void createChatRoomForReal(final String  name) {
-        Location currentLocation = requestCurrentLocation();
+        requestCurrentLocation();
+        Location currentLocation = lastLocation;
         double currentLat = currentLocation.getLatitude();
         double currentLong = currentLocation.getLongitude();
         mChatroomGeoFire.setLocation(name, new GeoLocation(currentLat, currentLong), new GeoFire.CompletionListener() {
@@ -533,20 +548,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Toast.makeText(this, "Chatroom " + name + " created. Success!", Toast.LENGTH_LONG).show();
     }
 
-    public Location requestCurrentLocation(){
-        //The required permission request to get lastLocation
-        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            //Requesting the permission
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        Log.d(LOG_TAG, "LastLocation: " + (lastLocation == null ? "NO LastLocation" : lastLocation.toString()));
-        return lastLocation;
-    }
 
     private void addEventListener(){
         //Added GeoQueryEventListener
@@ -610,4 +611,70 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     /**
      * Potentially outdated code goes here
      */
+    /*
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.i(LOG_TAG, "Location changed to :" + location.toString() );
+        //TODO: Gonna try to geoquery updated locations, makesure setCenter() works vs setLocation()
+        double myLong = location.getLongitude();
+        double myLat = location.getLatitude();
+        lastLocation = location;
+        mGeoQuery.setCenter(new GeoLocation(myLong, myLat));
+
+        //TODO: get proper reference to the fragments.
+        pagerAdapter.updateMe();
+        Log.v("MainActivity.java", "OnLocationChanged, Lat:" + location.getLatitude());
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocatioRequest = LocationRequest.create();
+        mLocatioRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocatioRequest.setInterval(3000);
+        // --comment outthis:try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocatioRequest, this);
+        }catch(SecurityException e){
+            Log.e(LOG_TAG, "error.error: " + e);
+        } --> to this
+
+        //Getting last location info - lets try & make this a global var
+        lastLocation = requestCurrentLocation();
+        double myLat = (lastLocation.getLatitude());
+        double myLong = (lastLocation.getLongitude());
+        mGeoQuery = mChatroomGeoFire.queryAtLocation(new GeoLocation(myLat,myLong), 10);
+        addEventListener();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {Log.i(LOG_TAG, " hi friend");}
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(LOG_TAG, " hi friend, connection failed");    }
+
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
+
+    public Location requestCurrentLocation(){
+        //The required permission request to get lastLocation
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            //Requesting the permission
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Log.d(LOG_TAG, "LastLocation: " + (lastLocation == null ? "NO LastLocation" : lastLocation.toString()));
+        return lastLocation;
+    }
+    */
 }

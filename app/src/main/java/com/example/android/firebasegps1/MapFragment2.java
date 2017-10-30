@@ -103,11 +103,13 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
         populateMapPins();
     }
 
-    private void populateMapPins() {
+    //TODO: maybe update this on background thread cuz laggy UI when update location
+    void populateMapPins() {
         chatListReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 double longitude = 0, latitude = 0;
+                markersList.clear();
                 for(DataSnapshot child: dataSnapshot.getChildren()){
                     String roomName = child.getKey();
                     Log.v("MapFragment2", "Room name is: " + roomName);
@@ -123,7 +125,7 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
                                 .position(new LatLng(longitude, latitude))
                                 .title(roomName)
                                 .icon(getCorrectPin(latitude, longitude));
-                        if(!markersList.contains(newMarker))
+                        //if(!markersList.contains(newMarker))
                             markersList.add(newMarker);
                         updateMap(markersList);
                     }
@@ -135,12 +137,6 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateMap(ArrayList<MarkerOptions> markersList) {
-        m_map.clear();
-        for(MarkerOptions marker:markersList){
-            m_map.addMarker(marker);
-        }
-    }
-    public void updateMap(){
         m_map.clear();
         for(MarkerOptions marker:markersList){
             m_map.addMarker(marker);

@@ -57,7 +57,11 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter implements Main
     public void updateMe() {
         //TODO: RecyclerView/RecyclerAdapter is updating!
         //TODO: GET MAP TO UPDATE CORRECTLY!
-        mMapFragment.updateMap();
+        //TODO: Update Map & RecyclerView on backgound thread probably
         mChatListFragment.mAdapter.notifyDataSetChanged();
+        if(mMapFragment.m_map != null && MainActivity.lastLocation != null){
+            mMapFragment.populateMapPins();
+        }
+
     }
 }
