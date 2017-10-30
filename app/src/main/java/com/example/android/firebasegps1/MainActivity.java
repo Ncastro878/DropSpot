@@ -151,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
      * Location Services variables
      *
      * use the same LocationRequest variable
+     * uses this tutorial for Location Updates:
+     * https://github.com/codepath/android_guides/wiki/Retrieving-Location-with-LocationServices-API
      */
     private LocationRequest mLocationRequest;
     EditText dialogEditText;

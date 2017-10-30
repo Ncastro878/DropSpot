@@ -158,5 +158,4 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
         }
         return BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin_48_green);
     }
-
 }
