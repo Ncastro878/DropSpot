@@ -58,15 +58,24 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
             //holder.itemView.setTag(R.id.CLICKABLE, true);
             holder.itemView.setClickable(true);
             holder.itemView.setBackgroundResource(R.color.greenish);
+        }else{
+            holder.itemView.setClickable(false);
+            holder.itemView.setBackgroundResource(R.color.reddish);
         }
     }
 
     private boolean allowedDistance(Location room) {
+        try{
         Location currentLocation = MainActivity.lastLocation;
         Log.v("ChatListRecyclerAdapter", "CurrLoc lat =" + currentLocation.getLatitude());
         Log.v("ChatListRecyclerAdapter", "roomLoc lat =" + room.getLatitude());
         if(currentLocation.distanceTo(room) < 1690){
             return true;
+        }
+        return false;
+        }
+        catch (Exception e){
+            Log.e("ChatListRecyclerAdapter", "ERROR ERROR : " + e);
         }
         return false;
     }
@@ -78,7 +87,7 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         TextView mChatTextView;
         public ViewHolder(View itemView) {
             super(itemView);
@@ -89,6 +98,8 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         if(list != null && list.size() > 0){
             notifyDataSetChanged();
         }
+        //test
+        notifyDataSetChanged();
     }
 
     public class MyOnClickListener implements View.OnClickListener{

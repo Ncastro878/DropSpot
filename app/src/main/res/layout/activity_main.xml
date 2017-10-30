@@ -43,9 +43,10 @@
         android:src="@drawable/ic_add_black_24dp" />
 
     <Button
-        android:id="@+id/set_photo_url_button"
-        android:layout_width="wrap_content"
+        android:id="@+id/change_location"
+         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set User Photo" />
+        android:text="Change location" />
+
 
 </LinearLayout>

@@ -9,14 +9,22 @@ import android.view.View;
 
 import com.google.android.gms.maps.MapFragment;
 
+import static android.R.attr.x;
+
 /**
  * Created by nick on 10/13/2017.
  */
 
-public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
+public class MyFragmentPagerAdapter extends FragmentPagerAdapter implements MainActivity.UpdateUI {
     final int PAGE_COUNT = 2;
     private String tabTitles[] = new String[]{"Map", "ChatRooms"};
     private Context context;
+
+    /**
+     * Lets make fragment variables
+     */
+    ChatListFragment mChatListFragment;
+    MapFragment2 mMapFragment;
 
     public MyFragmentPagerAdapter(FragmentManager fm, Context context){
         super(fm);
@@ -27,9 +35,12 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
     //so either MapFragment or ChatRoomFragment
     @Override
     public Fragment getItem(int position) {
-        if(position == 1)
-            return ChatListFragment.newInstance(position);
-        return MapFragment2.newInstance();
+        if(position == 1) {
+            mChatListFragment = ChatListFragment.newInstance(position);
+            return mChatListFragment;
+        }
+        mMapFragment = MapFragment2.newInstance();
+        return mMapFragment;
     }
 
     @Override
@@ -40,5 +51,13 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return tabTitles[position];
+    }
+
+    @Override
+    public void updateMe() {
+        //TODO: RecyclerView/RecyclerAdapter is updating!
+        //TODO: GET MAP TO UPDATE CORRECTLY!
+        mMapFragment.updateMap();
+        mChatListFragment.mAdapter.notifyDataSetChanged();
     }
 }

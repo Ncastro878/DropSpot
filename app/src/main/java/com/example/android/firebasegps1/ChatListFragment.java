@@ -47,7 +47,7 @@ public class ChatListFragment extends Fragment {
     private int mPage;
     RecyclerView chatListRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
-    ChatListRecyclerAdapter mAdapter;
+    public ChatListRecyclerAdapter mAdapter;
     RecyclerView.OnItemTouchListener myNewListener;
 
     /**
@@ -83,38 +83,6 @@ public class ChatListFragment extends Fragment {
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
-        };
-
-        // may be unnecessary
-        myNewListener = new RecyclerView.OnItemTouchListener() {
-            GestureDetector mGestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener(){
-                @Override
-                public boolean onSingleTapUp(MotionEvent e) {
-                    return true;
-                    //return super.onSingleTapUp(e);
-                }
-            });
-            @Override
-            public boolean onInterceptTouchEvent(final RecyclerView rv, MotionEvent e) {
-                View v = rv.findChildViewUnder(e.getX(), e.getY());
-                //Lets set a delay making the RecyclerView unclickable for 5 seconds, so firebase can catchup.
-                int recyclerPosition = rv.getChildAdapterPosition(v);
-                Log.v("ChatListFragment.java", "How many times is intercept called?");
-                if(v != null && mGestureDetector.onTouchEvent(e) && v.isClickable()){
-                    goToChatRoom(chatList.get(recyclerPosition));
-                    Toast.makeText(rv.getContext(),"Access Granted to "+chatList.get(recyclerPosition),
-                            Toast.LENGTH_SHORT).show();
-                    return true;
-                }else {
-                    Toast.makeText(rv.getContext(), "Access Denied to " + chatList.get(recyclerPosition),
-                            Toast.LENGTH_SHORT).show();
-                }
-                return false;
-            }
-            @Override
-            public void onTouchEvent(RecyclerView rv, MotionEvent e) {}
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
         };
     }
     /**
@@ -209,4 +177,7 @@ public class ChatListFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
+
+
+
 }

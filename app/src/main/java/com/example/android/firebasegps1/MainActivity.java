@@ -13,7 +13,10 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -119,17 +122,33 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private FirebaseStorage mFirebaseStorage;
     private StorageReference mChatPhotosStorageReference;
 
-    //Location Services variables
-    private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocatioRequest;
-    EditText dialogEditText;
-    static Location lastLocation;
-
     DatabaseReference mGeoFireChatroomReference;
     GeoFire mChatroomGeoFire;
     GeoQuery mGeoQuery;
     FloatingActionButton mFloatingActionButton;
-    Button mPhotoButton;
+
+    /**
+     * My Fragments
+     */
+    Button changeLocationButton;
+    UpdateUI pagerAdapter;
+
+    /**
+     * Lets test this intercace callback out
+     */
+    public interface UpdateUI{
+        void updateMe();
+    }
+
+    /**
+     * Potentially outdated variables
+     * Location Services variables
+
+     */
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocatioRequest;
+    EditText dialogEditText;
+    static Location lastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,15 +158,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         //Get the viewPager and set it's PagerAdapter so that it can display items
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        MyFragmentPagerAdapter pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this);
-        viewPager.setAdapter(pagerAdapter);
+        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), MainActivity.this);
+        viewPager.setAdapter((PagerAdapter) pagerAdapter);
 
         //Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         mFloatingActionButton = (FloatingActionButton) findViewById(R.id.floating_action_button);
-        mPhotoButton = (Button) findViewById(R.id.set_photo_url_button);
+        changeLocationButton = (Button) findViewById(R.id.change_location);
 
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         mFirebaseStorage = FirebaseStorage.getInstance();
@@ -236,14 +255,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 createRoomDialog();
             }
         });
-        //Lets User set profile photo
-        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+        changeLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent,"Complete action using"), RC_PHOTO_PICKER);
+                Location mLocation = new Location("");
+                mLocation.setLatitude(40.7128);
+                mLocation.setLongitude(74.0060);
+                onLocationChanged(mLocation);
             }
         });
     }
@@ -396,30 +414,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         detachDatabaseReadListener();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.my_options_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.sign_out_menu:
-                AuthUI.getInstance().signOut(this);
-                return true;
-            case R.id.notifications_activity_menu_option:
-                Intent intent = new Intent(MainActivity.this, ChatRoomTemplate.class);
-                if(latestKey != null){
-                    intent.putExtra("chatRoomName", latestKey);
-                }
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     protected void onStart() {
@@ -443,6 +437,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         double myLat = location.getLatitude();
         lastLocation = location;
         mGeoQuery.setCenter(new GeoLocation(myLong, myLat));
+
+        //TODO: get proper reference to the fragments.
+        pagerAdapter.updateMe();
+        Log.v("MainActivity.java", "OnLocationChanged, Lat:" + location.getLatitude());
     }
 
     @Override
@@ -452,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onConnected(@Nullable Bundle bundle) {
         mLocatioRequest = LocationRequest.create();
         mLocatioRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocatioRequest.setInterval(10000);
+        mLocatioRequest.setInterval(3000);
         /*try {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocatioRequest, this);
@@ -584,4 +582,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .child("timeCreated").setValue(currentTime);
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.my_options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.sign_out_menu:
+                AuthUI.getInstance().signOut(this);
+                return true;
+            case R.id.upload_photo_menu_option:
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/jpeg");
+                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intent,"Complete action using"), RC_PHOTO_PICKER);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Potentially outdated code goes here
+     */
 }

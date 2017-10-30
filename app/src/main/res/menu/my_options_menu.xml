@@ -6,8 +6,8 @@
         android:title="Sign Out"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/notifications_activity_menu_option"
-        android:title="Newest Chat"
+        android:id="@+id/upload_photo_menu_option"
+        android:title="Upload Photo"
         app:showAsAction="never"
         />
 

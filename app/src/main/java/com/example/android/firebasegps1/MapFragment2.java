@@ -2,12 +2,14 @@ package com.example.android.firebasegps1;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,6 +27,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 /**
  * Created by nick on 10/13/2017.
  */
@@ -37,6 +41,7 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
     GoogleMap m_map;
     boolean mapReady=false;
     MarkerOptions brickTown;
+    ArrayList<MarkerOptions> markersList = new ArrayList<>();
     /**
      *Default Camera Position
      */
@@ -118,14 +123,28 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
                                 .position(new LatLng(longitude, latitude))
                                 .title(roomName)
                                 .icon(getCorrectPin(latitude, longitude));
-                                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48));
-                        m_map.addMarker(newMarker);
+                        if(!markersList.contains(newMarker))
+                            markersList.add(newMarker);
+                        updateMap(markersList);
                     }
                 }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+    }
+
+    private void updateMap(ArrayList<MarkerOptions> markersList) {
+        m_map.clear();
+        for(MarkerOptions marker:markersList){
+            m_map.addMarker(marker);
+        }
+    }
+    public void updateMap(){
+        m_map.clear();
+        for(MarkerOptions marker:markersList){
+            m_map.addMarker(marker);
+        }
     }
 
     private BitmapDescriptor getCorrectPin(double longitude, double latitude) {
@@ -141,7 +160,7 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
             Log.v("MapFragment2.java", ugh);
             return BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48);
         }
-        return BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin40);
+        return BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin_48_green);
     }
 
 }
