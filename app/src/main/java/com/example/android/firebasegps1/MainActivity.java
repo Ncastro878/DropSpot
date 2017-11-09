@@ -375,15 +375,14 @@ public class MainActivity extends AppCompatActivity {
     private void dropPinOnMap(String roomName) {
         requestCurrentLocation();
         Location currentLocation = lastLocation;
-        double longtude = currentLocation.getLongitude();
-        double latude = currentLocation.getLatitude();
+        double longitude = currentLocation.getLongitude();
+        double latitude = currentLocation.getLatitude();
         MarkerOptions newMarker = new MarkerOptions()
-                .position(new LatLng(latude, longtude))
+                .position(new LatLng(latitude, longitude))
                 .title(roomName)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.new_map_pin48));
-        //m_map.addMarker(newMarker);
 
-        MapFragment2 mMapFragment2 = (MapFragment2) getSupportFragmentManager().getFragments().get(0);
+        MapFragment2 mMapFragment2 = (MapFragment2) getSupportFragmentManager().getFragments().get(1);
         mMapFragment2.m_map.addMarker(newMarker);
     }
 
