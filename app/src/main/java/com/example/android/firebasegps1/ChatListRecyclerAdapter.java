@@ -28,7 +28,6 @@ import static java.security.AccessController.getContext;
 
 public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecyclerAdapter.ViewHolder> {
 
-    int CLICKABLE = 5;
     private ArrayList<String> listOfRooms = new ArrayList<>();
     private ArrayList<Location> listOfLocations = new ArrayList<>();
 
@@ -43,8 +42,6 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
                 .inflate(R.layout.chat_row_layout, parent, false);
         v.setOnClickListener(new MyOnClickListener());
          ViewHolder vh = new ViewHolder(v);
-        //lets try these 2 lines out
-       // v.setTag(R.id.CLICKABLE, false);
         v.setClickable(false);
         v.setBackgroundResource(R.color.reddish);
         return vh;
@@ -94,12 +91,15 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
             mChatTextView = (TextView) itemView.findViewById(R.id.chat_row_text_view);
         }
     }
-    public void updateAdapter(ArrayList<String> list){
-        if(list != null && list.size() > 0){
+    public void updateAdapter(ArrayList<String> chatList, ArrayList<Location> locationList){
+        if(chatList != null && chatList.size() > 0 && locationList != null){
+
+            listOfRooms = chatList;
+            listOfLocations = locationList;
             notifyDataSetChanged();
         }
         //test
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
     }
 
     public class MyOnClickListener implements View.OnClickListener{

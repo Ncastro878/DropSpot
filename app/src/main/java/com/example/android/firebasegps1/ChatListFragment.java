@@ -63,11 +63,11 @@ public class ChatListFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPage = getArguments().getInt(ARG_PAGE);
-        //chatList.add("FakeRoom");
 
         chatDataBase = FirebaseDatabase.getInstance();
         chatListReference = chatDataBase.getReference().child("chat_rooms");
@@ -120,6 +120,8 @@ public class ChatListFragment extends Fragment {
     }
 
     private void initializeChatRoomsList() {
+        chatList.clear();
+        locationsList.clear();
         chatListReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -139,7 +141,7 @@ public class ChatListFragment extends Fragment {
                     }
                 }
                 Log.v("ChatListFragment.java", "Size of locationList is: " + locationsList.size());
-                mAdapter.updateAdapter(chatList);
+                mAdapter.updateAdapter(chatList, locationsList);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
@@ -151,6 +153,8 @@ public class ChatListFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ArrayList<String> roomList = new ArrayList<>();
+                chatList.clear();
+                locationsList.clear();
                 for(DataSnapshot child:dataSnapshot.getChildren()){
                     Location newLocation = new Location("c");
                     if(!chatList.contains(child.getKey())) {
@@ -169,8 +173,9 @@ public class ChatListFragment extends Fragment {
                 }
                 if (!roomList.isEmpty()){
                     chatList = roomList;
-                    mAdapter.updateAdapter(chatList);
-                    //scroll down next
+                    //mAdapter.updateAdapter(chatList);
+                    //lets try this instead
+                    mAdapter.updateAdapter(chatList, locationsList);
                 }
             }
             @Override
