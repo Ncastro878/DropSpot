@@ -39,6 +39,7 @@ public class ChatListFragment extends Fragment {
     public static final String ARG_PAGE = "ARG_PAGE";
     public ArrayList<String> chatList = new ArrayList<>();
     public ArrayList<Location> locationsList = new ArrayList<>();
+    public ArrayList<Long> bdaysList = new ArrayList<>();
     Location roomLocation;
     ValueEventListener eventListener;
     /**
@@ -98,7 +99,7 @@ public class ChatListFragment extends Fragment {
         chatListRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this.getActivity());
         chatListRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ChatListRecyclerAdapter(chatList, locationsList);
+        mAdapter = new ChatListRecyclerAdapter(chatList, locationsList, bdaysList);
         chatListRecyclerView.setAdapter(mAdapter);
         initializeChatRoomsList();
 
@@ -122,6 +123,7 @@ public class ChatListFragment extends Fragment {
     private void initializeChatRoomsList() {
         chatList.clear();
         locationsList.clear();
+        bdaysList.clear();
         chatListReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -134,14 +136,16 @@ public class ChatListFragment extends Fragment {
                                 .child("l").child("0").getValue();
                         double longitude = (double)snapShot
                                 .child("l").child("1").getValue();
+                        Long birthTime = (Long)snapShot.child("timeCreated").getValue();
                         Log.v("ChatListFragment.java", String.format("Lat:%s && Long:%s", latitude, longitude));
                         newLocation.setLongitude(longitude);
                         newLocation.setLatitude(latitude);
                         locationsList.add(newLocation);
+                        bdaysList.add(birthTime);
                     }
                 }
                 Log.v("ChatListFragment.java", "Size of locationList is: " + locationsList.size());
-                mAdapter.updateAdapter(chatList, locationsList);
+                mAdapter.updateAdapter(chatList, locationsList, bdaysList);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
@@ -155,7 +159,8 @@ public class ChatListFragment extends Fragment {
                 ArrayList<String> roomList = new ArrayList<>();
                 chatList.clear();
                 locationsList.clear();
-                for(DataSnapshot child:dataSnapshot.getChildren()){
+                bdaysList.clear();
+                for(DataSnapshot child: dataSnapshot.getChildren()){
                     Location newLocation = new Location("c");
                     if(!chatList.contains(child.getKey())) {
                         chatList.add(child.getKey());
@@ -163,10 +168,12 @@ public class ChatListFragment extends Fragment {
                                 .child("l").child("0").getValue();
                         double longitude = (double)child
                                 .child("l").child("1").getValue();
+                        Long birthTime = (Long) child.child("timeCreated").getValue();
                         Log.v("ChatListFragment.java", String.format("Lat:%s && Long:%s", latitude, longitude));
                         newLocation.setLongitude(longitude);
                         newLocation.setLatitude(latitude);
                         locationsList.add(newLocation);
+                        bdaysList.add(birthTime);
                         Log.v("ChatListFragment.java", "Size of locationList2 is: " + locationsList.size());
                         Log.v("ChatListFragment", child.getKey() + " is a key");
                     }
@@ -175,7 +182,7 @@ public class ChatListFragment extends Fragment {
                     chatList = roomList;
                     //mAdapter.updateAdapter(chatList);
                     //lets try this instead
-                    mAdapter.updateAdapter(chatList, locationsList);
+                    mAdapter.updateAdapter(chatList, locationsList, bdaysList);
                 }
             }
             @Override
