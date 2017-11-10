@@ -1,6 +1,7 @@
 package com.example.android.firebasegps1;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -62,6 +63,6 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter implements Main
         if(mMapFragment.m_map != null && MainActivity.lastLocation != null){
             mMapFragment.populateMapPins();
         }
-
     }
+
 }

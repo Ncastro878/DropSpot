@@ -1,6 +1,7 @@
 package com.example.android.firebasegps1;
 
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -125,11 +126,10 @@ public class MapFragment2 extends Fragment implements OnMapReadyCallback {
                                 .position(new LatLng(longitude, latitude))
                                 .title(roomName)
                                 .icon(getCorrectPin(latitude, longitude));
-                        //if(!markersList.contains(newMarker))
-                            markersList.add(newMarker);
-                        updateMap(markersList);
+                        markersList.add(newMarker);
                     }
                 }
+                updateMap(markersList);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
