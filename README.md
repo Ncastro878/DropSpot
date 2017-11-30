@@ -16,4 +16,6 @@ Tools used/learned in building this app:
 
 -Fragments/RecyclerView/ViewPager/PagerAdapter
 
+-GeoFire(for coordinate-attribution to each new chatroom)
+
 ![](/Screenshot_20171127-233142-iloveimg-resized.png)
