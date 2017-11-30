@@ -20,16 +20,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-import static android.R.id.message;
-import static android.R.id.title;
-
-public class ChatRoomTemplate extends AppCompatActivity {
+public class ChatRoomActivity extends AppCompatActivity {
 
     public static final int RC_SIGNIN = 1 ;
 
@@ -51,7 +44,7 @@ public class ChatRoomTemplate extends AppCompatActivity {
     private String chatRoomName;
 
     private RecyclerView mRecyclerView;
-    private FireBaseRecyclerAdapter mFireBaseAdapter;
+    private ChatRoomAdapter mFireBaseAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
@@ -77,7 +70,7 @@ public class ChatRoomTemplate extends AppCompatActivity {
         if(intentReceived.hasExtra("chatRoomName")){
             //TODO: determine if "ChatRoomData" is needed
             chatRoomName = intentReceived.getStringExtra("chatRoomName");
-            Log.v("ChatRoomTEmplate", chatRoomName + " is the chatrom name.");
+            Log.v("ChatRoomTemplate", chatRoomName + " is the chatroom name.");
             titleTextView.setText("Welcome to " + chatRoomName + " Chatroom");
         }
         if(intentReceived.hasExtra("user_name")) {
@@ -93,7 +86,7 @@ public class ChatRoomTemplate extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mFireBaseAdapter = new FireBaseRecyclerAdapter(receivedMsgs, receivedUserNames, receivedImageUrls);
+        mFireBaseAdapter = new ChatRoomAdapter(receivedMsgs, receivedUserNames, receivedImageUrls);
         mRecyclerView.setAdapter(mFireBaseAdapter);
 
         /**
@@ -110,7 +103,7 @@ public class ChatRoomTemplate extends AppCompatActivity {
                 receivedUserNames.add(msgObj.getUsername());
                 receivedMsgs.add(msgObj.getMessage());
                 receivedImageUrls.add(msgObj.getUserImageUrl());
-                Log.v("ChatRoomTemplate.java", msgObj.toString());
+                Log.v("ChatRoomActivity.java", msgObj.toString());
 
                 mFireBaseAdapter.updateAdapter(receivedUserNames, receivedMsgs, receivedImageUrls);
                 mRecyclerView.smoothScrollToPosition(mFireBaseAdapter.getItemCount());
@@ -142,7 +135,7 @@ public class ChatRoomTemplate extends AppCompatActivity {
                     chatRoomReference.push().setValue(msgObject);
 
                     mNewMessageEditText.setText("");
-                    Toast.makeText(ChatRoomTemplate.this, "Message Sent", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ChatRoomActivity.this, "Message Sent", Toast.LENGTH_LONG).show();
                 }
             }
         });

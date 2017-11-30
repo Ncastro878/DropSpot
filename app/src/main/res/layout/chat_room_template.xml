@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context="com.example.android.firebasegps1.FireBaseRecyclerAdapter">
+    tools:context="com.example.android.firebasegps1.ChatRoomAdapter">
 
     <TextView
         android:id="@+id/title_text_view"
@@ -15,7 +15,6 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="5dp"
         android:textSize="20dp"
         android:textStyle="bold"
         android:text="blank area- put stuff here"
@@ -28,12 +27,11 @@
     <!-- A RecyclerView with some commonly used attributes -->
     <android.support.v7.widget.RecyclerView
         android:id="@+id/my_recycler_view"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="390dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:scrollbars="vertical"
-        android:background="@drawable/border"
         app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -48,7 +46,6 @@
         android:layout_height="wrap_content"
         android:hint="Enter Message Here"
         android:layout_marginTop="42dp"
-        android:background="@drawable/border"
         app:layout_constraintTop_toBottomOf="@+id/my_recycler_view"
         android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="parent"

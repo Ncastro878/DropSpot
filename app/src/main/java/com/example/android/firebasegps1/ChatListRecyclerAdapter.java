@@ -1,6 +1,5 @@
 package com.example.android.firebasegps1;
 
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.support.v7.widget.RecyclerView;
@@ -8,24 +7,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-
-import static android.R.id.list;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
-import static android.os.Build.VERSION_CODES.M;
-import static com.example.android.firebasegps1.MainActivity.lastLocation;
-import static java.security.AccessController.getContext;
 
 /**
  * Created by nick on 10/13/2017.
@@ -38,6 +26,8 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
     private ArrayList<Long> listOfBDays = new ArrayList<>();
 
     private static final long ONE_DAY_IN_SECONDS = 86400;
+    private static final long FOUR_HRS_IN_SECONDS = 14400;
+    private static final float METERS_IN_A_MILE = 1609;
 
     public ChatListRecyclerAdapter(ArrayList<String> newList, ArrayList<Location> locations,
                                    ArrayList<Long> bdays) {
@@ -51,9 +41,9 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.chat_row_layout, parent, false);
         v.setOnClickListener(new MyOnClickListener());
-         ViewHolder vh = new ViewHolder(v);
         v.setClickable(false);
         v.setBackgroundResource(R.color.reddish);
+        ViewHolder vh = new ViewHolder(v);
         return vh;
     }
 
@@ -61,8 +51,7 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mChatTextView.setText(listOfRooms.get(position));
         holder.itemView.setTag(R.id.CLICKABLE, position);
-        if(allowedDistance(listOfLocations.get(position))){
-            //holder.itemView.setTag(R.id.CLICKABLE, true);
+        if(isDistanceLessThanOneMile(listOfLocations.get(position))){
             holder.itemView.setClickable(true);
             holder.itemView.setBackgroundResource(R.color.greenish);
         }else{
@@ -71,15 +60,15 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         }
     }
 
-    private boolean allowedDistance(Location room) {
+    private boolean isDistanceLessThanOneMile(Location room) {
         try{
-        Location currentLocation = MainActivity.lastLocation;
-        Log.v("ChatListRecyclerAdapter", "CurrLoc lat =" + currentLocation.getLatitude());
-        Log.v("ChatListRecyclerAdapter", "roomLoc lat =" + room.getLatitude());
-        if(currentLocation.distanceTo(room) < 1690){
-            return true;
-        }
-        return false;
+            Location currentLocation = MainActivity.lastLocation;
+            Log.v("ChatListRecyclerAdapter", "CurrLoc lat =" + currentLocation.getLatitude());
+            Log.v("ChatListRecyclerAdapter", "roomLoc lat =" + room.getLatitude());
+            if(currentLocation.distanceTo(room) < METERS_IN_A_MILE){
+                return true;
+            }
+            return false;
         }
         catch (Exception e){
             Log.e("ChatListRecyclerAdapter", "ERROR ERROR : " + e);
@@ -118,28 +107,32 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         @Override
         public void onClick(View view) {
             String roomName = listOfRooms.get((int)view.getTag(R.id.CLICKABLE));
-            Long timeCreatedMinusNow = getChatRoomTimeDifference(roomName);
+            Long roomLengthOfLife = getChatRoomLengthOfLife(roomName);
             if(view.isClickable() && view != null){
-                if(timeCreatedMinusNow > ONE_DAY_IN_SECONDS){
+                if(roomLengthOfLife > FOUR_HRS_IN_SECONDS){
                     Toast.makeText(view.getContext(), "This room has expired. Sorry", Toast.LENGTH_SHORT).show();
-                    //TODO: DELETE THIS ROOM - make smoother
-                    view.setBackgroundResource(R.color.reddish);
-                    view.setClickable(false);
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("chat_rooms").child(roomName).removeValue();
-                    listOfBDays.remove(listOfBDays.get(listOfRooms.indexOf(roomName)));
-                    listOfRooms.remove(roomName);
-                    notifyDataSetChanged();
+                    deleteRoomFromApp(roomName, view);
                 }else {
-                    goToChatRoom(roomName, view);
+                    enterChatRoom(roomName, view);
                     Toast.makeText(view.getContext(), "Access Granted to " + roomName,
                             Toast.LENGTH_SHORT).show();
                 }
             }
         }
+
+        private void deleteRoomFromApp(String nameOfRoom, View view) {
+            view.setBackgroundResource(R.color.reddish);
+            view.setClickable(false);
+            FirebaseDatabase.getInstance().getReference()
+                    .child("chat_rooms").child(nameOfRoom).removeValue();
+            listOfBDays.remove(listOfBDays.get(listOfRooms.indexOf(nameOfRoom)));
+            listOfRooms.remove(nameOfRoom);
+            //TODO: delete rom from listOfLocations; use same index listOfBDays.remove() uses?
+            notifyDataSetChanged();
+        }
     }
 
-    private Long getChatRoomTimeDifference(String roomName) {
+    private Long getChatRoomLengthOfLife(String roomName) {
         int position = listOfRooms.indexOf(roomName);
         Long roomBday = listOfBDays.get(position);
         Long currentTime = System.currentTimeMillis()/1000;
@@ -147,9 +140,9 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
         return currentTime - roomBday;
     }
 
-    private void goToChatRoom(String chatRoomName, View view) {
+    private void enterChatRoom(String chatRoomName, View view) {
         String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        Intent intent = new Intent(view.getContext(), ChatRoomTemplate.class);
+        Intent intent = new Intent(view.getContext(), ChatRoomActivity.class);
         intent.putExtra("chatRoomName", chatRoomName);
         intent.putExtra("user_name", userName);
         view.getContext().startActivity(intent);

@@ -1,26 +1,15 @@
 package com.example.android.firebasegps1;
 
-import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,7 +17,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 /**
  * This will be the ChatRoom Fragment
@@ -49,7 +37,6 @@ public class ChatListFragment extends Fragment {
     RecyclerView chatListRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
     public ChatListRecyclerAdapter mAdapter;
-    RecyclerView.OnItemTouchListener myNewListener;
 
     /**
      * FireBase Variables
@@ -72,6 +59,9 @@ public class ChatListFragment extends Fragment {
 
         chatDataBase = FirebaseDatabase.getInstance();
         chatListReference = chatDataBase.getReference().child("chat_rooms");
+        //I don't think roomLocation & eventListener serve a purpose anymore
+        //potentially delete these
+        //TODO: Check if roomLocation & eventListener can be deleted
         roomLocation = new Location("c");
         eventListener = new ValueEventListener() {
             @Override
@@ -101,7 +91,7 @@ public class ChatListFragment extends Fragment {
         chatListRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new ChatListRecyclerAdapter(chatList, locationsList, bdaysList);
         chatListRecyclerView.setAdapter(mAdapter);
-        initializeChatRoomsList();
+        initChatroomListsWithData();
 
         /**
          * Lets try a different approach for now.
@@ -112,15 +102,7 @@ public class ChatListFragment extends Fragment {
         return view;
     }
 
-    private void goToChatRoom(String chatRoomName) {
-        String userName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        Intent intent = new Intent(getContext(), ChatRoomTemplate.class);
-        intent.putExtra("chatRoomName", chatRoomName);
-        intent.putExtra("user_name", userName);
-        startActivity(intent);
-    }
-
-    private void initializeChatRoomsList() {
+    private void initChatroomListsWithData() {
         chatList.clear();
         locationsList.clear();
         bdaysList.clear();
@@ -180,8 +162,6 @@ public class ChatListFragment extends Fragment {
                 }
                 if (!roomList.isEmpty()){
                     chatList = roomList;
-                    //mAdapter.updateAdapter(chatList);
-                    //lets try this instead
                     mAdapter.updateAdapter(chatList, locationsList, bdaysList);
                 }
             }
@@ -189,7 +169,4 @@ public class ChatListFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
-
-
-
 }

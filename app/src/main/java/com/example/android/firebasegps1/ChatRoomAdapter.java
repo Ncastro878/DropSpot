@@ -8,8 +8,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ import java.util.ArrayList;
  * Created by nick on 7/6/2017.
  */
 
-class FireBaseRecyclerAdapter extends RecyclerView.Adapter<FireBaseRecyclerAdapter.ViewHolder> {
+class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHolder> {
 
     private ArrayList<String> messagesList = new ArrayList<>();
     private ArrayList<String> usernamesList= new ArrayList<>();
@@ -43,7 +41,7 @@ class FireBaseRecyclerAdapter extends RecyclerView.Adapter<FireBaseRecyclerAdapt
      * This is the rest of the methods and constructors for MyAdapter
      * @param dataSet is an array of strings
      */
-    public FireBaseRecyclerAdapter(ArrayList<String> dataSet, ArrayList<String> nameList, ArrayList imgs) {
+    public ChatRoomAdapter(ArrayList<String> dataSet, ArrayList<String> nameList, ArrayList imgs) {
         messagesList = dataSet;
         usernamesList = nameList;
         imageUrlList = imgs;
@@ -51,7 +49,7 @@ class FireBaseRecyclerAdapter extends RecyclerView.Adapter<FireBaseRecyclerAdapt
 
     // Create new views (invoked by the layout manager)
     @Override
-    public FireBaseRecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ChatRoomAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v =  LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_layout, parent, false);
         ViewHolder vh = new ViewHolder((LinearLayout) v);
@@ -60,7 +58,7 @@ class FireBaseRecyclerAdapter extends RecyclerView.Adapter<FireBaseRecyclerAdapt
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(FireBaseRecyclerAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ChatRoomAdapter.ViewHolder holder, int position) {
         holder.mTextView.setText(messagesList.get(position));
         holder.mSmallTextView.setText(usernamesList.get(position));
         holder.mSmallTextView.append(": ");

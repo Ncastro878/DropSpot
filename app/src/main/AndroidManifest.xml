@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ChatRoomTemplate"
+        <activity android:name=".ChatRoomActivity"
             android:label="Notifications"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustPan">

@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<android.support.design.widget.CoordinatorLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@drawable/gradient_background"
     android:weightSum="1">
+
+    <LinearLayout
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:orientation="vertical">
 
     <android.support.design.widget.TabLayout
         android:id="@+id/sliding_tabs"
@@ -26,27 +31,39 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintVertical_bias="0.0" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
-        android:layout_width="wrap_content"
-        android:layout_height="330dp"
-        android:layout_below="@+id/sliding_tabs"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="8dp"
-        android:background="@android:color/white"
-        android:layout_weight="0.32" />
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="wrap_content"
+            android:layout_height="330dp"
+            android:layout_below="@+id/sliding_tabs"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0.32"
+            android:background="@android:color/white"
+            android:elevation="8dp"/>
+
+        <Button
+            android:id="@+id/change_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change location"
+            android:layout_marginTop="35dp"/>
+
+    </LinearLayout>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_add_black_24dp" />
+        android:src="@drawable/ic_add_black_24dp"
+        android:layout_margin="10dp"
+        app:elevation="6dp"
+        app:layout_anchor="@id/viewpager"
+        app:layout_anchorGravity="bottom|end"
+        app:pressedTranslationZ="12dp"/>
 
-    <Button
-        android:id="@+id/change_location"
-         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Change location" />
 
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>
