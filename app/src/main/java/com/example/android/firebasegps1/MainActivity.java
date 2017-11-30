@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
      * https://github.com/codepath/android_guides/wiki/Retrieving-Location-with-LocationServices-API
      */
     private LocationRequest mLocationRequest;
+    //TODO: Use something else instead of this global variable.
     static Location lastLocation;
 
     EditText dialogEditText;

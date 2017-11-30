@@ -29,7 +29,6 @@ import java.util.ArrayList;
  * Created by nick on 10/13/2017.
  */
 
-//TODO: When chatroom is deleted, update map and pins, deleting the old chatroom pin.
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final float METERS_IN_A_MILE = 1609;

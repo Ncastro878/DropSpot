@@ -68,13 +68,11 @@ public class ChatRoomActivity extends AppCompatActivity {
         //received intent data
         Intent intentReceived = getIntent();
         if(intentReceived.hasExtra("chatRoomName")){
-            //TODO: determine if "ChatRoomData" is needed
             chatRoomName = intentReceived.getStringExtra("chatRoomName");
             Log.v("ChatRoomTemplate", chatRoomName + " is the chatroom name.");
             titleTextView.setText("Welcome to " + chatRoomName + " Chatroom");
         }
         if(intentReceived.hasExtra("user_name")) {
-            //TODO: determine if "ChatRoomData" is needed
             mUserName = intentReceived.getStringExtra("user_name");
             Log.v("UserName Received, ", mUserName + " is the users name.");
         }
