@@ -20,6 +20,7 @@ Tools used/learned in building this app:
 
 ![](/Screenshot_20171127-233142-iloveimg-resized.png)
 
+![](/Screenshot_20171028-030129.png)
 
 
 *At this point, GeoFire is unnecessary but it sparked ideas, was fun to learn, and may prove useful soon to limit the which rooms show up on the map and list of chatrooms, i.e. only show chatrooms within 20 miles vs all chatrooms currently created on Earth. 
