@@ -16,6 +16,10 @@ Tools used/learned in building this app:
 
 -Fragments/RecyclerView/ViewPager/PagerAdapter
 
--GeoFire(for coordinate-attribution to each new chatroom)
+-GeoFire*
 
 ![](/Screenshot_20171127-233142-iloveimg-resized.png)
+
+
+
+*At this point, GeoFire is unnecessary but it sparked ideas, was fun to learn, and may prove useful soon to limit the which rooms show up on the map and list of chatrooms, i.e. only show chatrooms within 20 miles vs all chatrooms currently created on Earth. 
