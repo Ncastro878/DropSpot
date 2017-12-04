@@ -84,14 +84,14 @@ public class ChatListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.chat_list_fragment, container, false);
 
-        addEventListener();
+        addEventListenerToChatListReference();
         chatListRecyclerView = (RecyclerView) view.findViewById(R.id.chat_list_recycler_view);
         chatListRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this.getActivity());
         chatListRecyclerView.setLayoutManager(mLayoutManager);
         mAdapter = new ChatListRecyclerAdapter(chatList, locationsList, bdaysList);
         chatListRecyclerView.setAdapter(mAdapter);
-        initChatroomListsWithData();
+        initListOfChatRooms();
 
         /**
          * Lets try a different approach for now.
@@ -102,7 +102,7 @@ public class ChatListFragment extends Fragment {
         return view;
     }
 
-    private void initChatroomListsWithData() {
+    private void initListOfChatRooms() {
         chatList.clear();
         locationsList.clear();
         bdaysList.clear();
@@ -127,14 +127,14 @@ public class ChatListFragment extends Fragment {
                     }
                 }
                 Log.v("ChatListFragment.java", "Size of locationList is: " + locationsList.size());
-                mAdapter.updateAdapter(chatList, locationsList, bdaysList);
+                mAdapter.updateListOfRoomsAdapter(chatList, locationsList, bdaysList);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
 
-    public void addEventListener(){
+    public void addEventListenerToChatListReference(){
         chatListReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -162,7 +162,7 @@ public class ChatListFragment extends Fragment {
                 }
                 if (!roomList.isEmpty()){
                     chatList = roomList;
-                    mAdapter.updateAdapter(chatList, locationsList, bdaysList);
+                    mAdapter.updateListOfRoomsAdapter(chatList, locationsList, bdaysList);
                 }
             }
             @Override

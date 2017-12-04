@@ -90,8 +90,8 @@ public class ChatListRecyclerAdapter extends RecyclerView.Adapter<ChatListRecycl
             mChatTextView = (TextView) itemView.findViewById(R.id.chat_row_text_view);
         }
     }
-    public void updateAdapter(ArrayList<String> chatList, ArrayList<Location> locationList,
-                                ArrayList<Long> bdays){
+    public void updateListOfRoomsAdapter(ArrayList<String> chatList,
+                                         ArrayList<Location> locationList, ArrayList<Long> bdays){
         if(chatList != null && chatList.size() > 0 && locationList != null){
             listOfBDays = bdays;
             listOfRooms = chatList;

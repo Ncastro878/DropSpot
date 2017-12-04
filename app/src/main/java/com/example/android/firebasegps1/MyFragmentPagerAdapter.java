@@ -1,12 +1,9 @@
 package com.example.android.firebasegps1;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-
-import static android.os.Build.VERSION_CODES.M;
 
 /**
  * Created by nick on 10/13/2017.
@@ -52,7 +49,7 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter implements Main
         //TODO: Update Map & RecyclerView on background thread probably
         mChatListFragment.mAdapter.notifyDataSetChanged();
         if(mMapFragment.m_map != null && MainActivity.lastLocation != null){
-            mMapFragment.populateMapPins();
+            mMapFragment.populateMapPinsOnStartup();
         }
     }
 

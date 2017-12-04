@@ -38,7 +38,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     GoogleMap m_map;
     boolean mapReady = false;
     MarkerOptions brickTown;
-    ArrayList<MarkerOptions> markersList = new ArrayList<>();
+    ArrayList<MarkerOptions> mapMarkersList = new ArrayList<>();
     /**
      *Default Camera Position
      */
@@ -53,7 +53,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Firebase variables
      */
     private FirebaseDatabase firebaseChatDataBase;
-    private DatabaseReference chatListReference;
+    private DatabaseReference fireBaseReferenceToListOfRooms;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -66,7 +66,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
          * Setup Firebase Database references
          */
         firebaseChatDataBase = FirebaseDatabase.getInstance();
-        chatListReference = firebaseChatDataBase.getReference().child("chat_rooms");
+        fireBaseReferenceToListOfRooms = firebaseChatDataBase.getReference().child("chat_rooms");
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -96,16 +96,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mapReady = true;
         m_map = googleMap;
         m_map.moveCamera(CameraUpdateFactory.newCameraPosition(WICHITA_FALLS));
-        populateMapPins();
+        populateMapPinsOnStartup();
     }
 
     //TODO: maybe updating this on background thread will cure laggy UI when location updates
-    void populateMapPins() {
-        chatListReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    void populateMapPinsOnStartup() {
+        fireBaseReferenceToListOfRooms.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 double longitude = 0, latitude = 0;
-                markersList.clear();
+                mapMarkersList.clear();
                 for(DataSnapshot child: dataSnapshot.getChildren()){
                     String roomName = child.getKey();
                     Log.v("MapFragment", "Room name is: " + roomName);
@@ -121,17 +121,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 .position(new LatLng(longitude, latitude))
                                 .title(roomName)
                                 .icon(getCorrectPinColor(latitude, longitude));
-                        markersList.add(newMarker);
+                        mapMarkersList.add(newMarker);
                     }
                 }
-                updateMap(markersList);
+                updateMapWithNewPins(mapMarkersList);
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
     }
 
-    private void updateMap(ArrayList<MarkerOptions> markersList) {
+    private void updateMapWithNewPins(ArrayList<MarkerOptions> markersList) {
         m_map.clear();
         for(MarkerOptions marker:markersList){
             m_map.addMarker(marker);
