@@ -18,7 +18,7 @@ Tools used/learned in building this app:
 
 -GeoFire*
 
-![](/Screenshot_20171127-233142-iloveimg-resized.png)
+![](/rsz_screenshot_20171028-030129.png)
 
 ![](/Screenshot_20171028-030129.png)
 
