@@ -1,5 +1,8 @@
 # DropSpot
 My DropSpot app. 
+
+![](/rsz_screenshot_20171028-030129.png) ![](/rsz_screenshot_20171127-233142.png)
+
 This is my first major project used primarily as a learning experience and my chance to create a neat idea I thought of when I first decided to learn Android Development. 
 The basic idea: It is a location/Time-based chatroom app. You can create a chatroom that is centered at your physical GPS location, and anybody that is within approximately 1 mile of where the chatroom was created can join and take part in the chatroom. Thus far, all chatrooms appear on a Google Map in the app, and on a list of created rooms.
 
@@ -18,7 +21,6 @@ Tools used/learned in building this app:
 
 -GeoFire*
 
-![](/rsz_screenshot_20171028-030129.png) ![](/rsz_screenshot_20171127-233142.png)
 
 
 *At this point, GeoFire is unnecessary but it sparked ideas, was fun to learn, and may prove useful soon to limit the which rooms show up on the map and list of chatrooms, i.e. only show chatrooms within 20 miles vs all chatrooms currently created on Earth. 
